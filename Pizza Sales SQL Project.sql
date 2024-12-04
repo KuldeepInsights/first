@@ -80,23 +80,7 @@ GROUP BY pizza_types.name
 ORDER BY quantity DESC
 LIMIT 5;
 
-
--- Question # 6:  Join the necessary tables to find the total quantity of each pizza category ordered.
-
-SELECT 
-    pizza_types.category,
-    SUM(order_details.quantity) AS quantity
-FROM
-    pizza_types
-        JOIN
-    pizzas ON pizza_types.pizza_type_id = pizzas.pizza_type_id
-        JOIN
-    order_details ON order_details.pizza_id = pizzas.pizza_id
-GROUP BY pizza_types.category
-ORDER BY quantity DESC;
-
-
--- Question # 7:  Determine the distribution of orders by hour of the day.
+-- Question # 6:  Determine the distribution of orders by hour of the day.
 
 SELECT 
     HOUR(order_time) AS hour, COUNT(order_id) AS order_count
@@ -105,7 +89,7 @@ FROM
 GROUP BY HOUR(order_time);
 
 
--- Question # 8:  Join relevant tables to find the category-wise distribution of pizzas.
+-- Question # 7:  Join relevant tables to find the category-wise distribution of pizzas.
 
 SELECT 
     category, COUNT(name)
@@ -114,20 +98,7 @@ FROM
 GROUP BY category;
 
 
--- Question # 9:  Group the orders by date and calculate the average number of pizzas ordered per day.
-
-SELECT 
-    ROUND(AVG(quantity), 0) as Avg_pizza_ordered_per_day
-FROM
-    (SELECT 
-        orders.order_date, SUM(order_details.quantity) AS Quantity
-    FROM
-        orders
-    JOIN order_details ON orders.order_id = order_details.order_id
-    GROUP BY orders.order_date) AS order_quantity;
-    
-    
--- Question # 10:  Determine the top 3 most ordered pizza types based on revenue.
+-- Question # 8:  Determine the top 3 most ordered pizza types based on revenue.
 
 SELECT 
     pizza_types.name,
@@ -142,7 +113,7 @@ GROUP BY pizza_types.name
 ORDER BY revenue DESC
 LIMIT 3;
 
--- Question # 11:  Calculate the percentage contribution of each pizza type to total revenue.
+-- Question # 9:  Calculate the percentage contribution of each pizza type to total revenue.
 
 SELECT 
     pizza_types.category,
@@ -162,7 +133,7 @@ FROM
 GROUP BY pizza_types.category
 ORDER BY revenue DESC;
 
--- Question # 12:  Analyze the cumulative revenue generated over time.
+-- Question # 10:  Analyze the cumulative revenue generated over time.
 
 Select order_date,
 sum(revenue) over (order by order_date) as cum_revenue
@@ -174,20 +145,3 @@ on order_details.pizza_id = pizzas.pizza_id
 join orders
 on orders.order_id = order_details.order_id
 group by orders.order_date) as sales;
-
-
--- Question # 13:  Determine the top 3 most ordered pizza types based on revenue for each pizza category.
-
-Select name, revenue from
-(select category, name, revenue,
-rank() over(partition by category order by revenue desc) as rn
-from
-(select pizza_types.category, pizza_types.name,
-sum((order_details.quantity) * pizzas.price) as revenue
-from pizza_types join pizzas 
-on pizza_types.pizza_type_id = pizzas.pizza_type_id
-join order_details
-on order_details.pizza_id = pizzas.pizza_id
-group by pizza_types.category, pizza_types.name) as a) as b
-where rn <= 3;    
-    
